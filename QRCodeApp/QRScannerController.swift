@@ -54,6 +54,14 @@ class QRScannerController: UIViewController {
             //Start video capture
             captureSession.startRunning()
             
+            //Move the message label and top bar to the front
+            view.bringSubviewToFront(messageLabel)
+            view.bringSubviewToFront(topBar)
+            
+            //Initialize QR Code Frame to highlight th QR code
+            
+            
+            
         }catch {
             //If any error occurs, simply print it out and don't continue anymore
             print(error)
