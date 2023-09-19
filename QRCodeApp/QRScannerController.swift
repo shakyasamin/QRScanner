@@ -18,6 +18,8 @@ class QRScannerController: UIViewController {
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     var qrcodeFrameView: UIView?
     
+    let imageView = UIImageView()
+    
     @IBOutlet var messageLabel: UILabel!
     @IBOutlet var topBar: UIView!
     
@@ -42,16 +44,26 @@ class QRScannerController: UIViewController {
                 messageLabel.text = metadataObj.stringValue
             }
         }
-        
                
-        
-          
-        
-        
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Initialize the image view and set its properties
+        let imageSize = CGSize(width: 50, height: 50)
+        imageView.frame = CGRect(x: (view.frame.width - imageSize.width)/2, y: topBar.frame.maxY + 10, width: imageSize.width, height: imageSize.height)
+              imageView.contentMode = .scaleAspectFit
+              imageView.isUserInteractionEnabled = true // Enable user interaction
+              imageView.image = UIImage(systemName: "photo") // Set your image here
+              // Add a tap gesture recognizer to the image view
+              let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
+              imageView.addGestureRecognizer(tapGestureRecognizer)
+              // Add the image view as a subview
+              view.addSubview(imageView)
+        
+        
+      
+
         
         //Get the back-facing camera for capturing videos
         guard let captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
@@ -105,6 +117,33 @@ class QRScannerController: UIViewController {
             print(error)
             return
         }
+        
 
     }
+    @objc func imageTapped() {
+            openGallery()
+        }
+    
+    func openGallery() {
+          let imagePicker = UIImagePickerController()
+          imagePicker.sourceType = .photoLibrary
+          imagePicker.allowsEditing = false
+          imagePicker.delegate = self // Make sure your class conforms to UIImagePickerControllerDelegate and UINavigationControllerDelegate
+          present(imagePicker, animated: true, completion: nil)
+      }
+  }
+  // Implement UIImagePickerControllerDelegate methods if not already implemented
+  extension QRScannerController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+      func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+          if let selectedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+              // Do something with the selected image
+              // For example, you can display it, process it, or save it
+              imageView.image = selectedImage
+          }
+          picker.dismiss(animated: true, completion: nil)
+      }
+      func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+          picker.dismiss(animated: true, completion: nil)
+      }
+    
 }
