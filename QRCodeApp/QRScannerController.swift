@@ -44,7 +44,6 @@ class QRScannerController: UIViewController {
                 messageLabel.text = metadataObj.stringValue
             }
         }
-               
     }
 
     override func viewDidLoad() {
@@ -60,10 +59,6 @@ class QRScannerController: UIViewController {
               imageView.addGestureRecognizer(tapGestureRecognizer)
               // Add the image view as a subview
               view.addSubview(imageView)
-        
-        
-      
-
         
         //Get the back-facing camera for capturing videos
         guard let captureDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
@@ -109,9 +104,6 @@ class QRScannerController: UIViewController {
                 view.bringSubviewToFront(qrcodeFrameView)
             }
             
-            
-            
-            
         }catch {
             //If any error occurs, simply print it out and don't continue anymore
             print(error)
@@ -120,6 +112,7 @@ class QRScannerController: UIViewController {
         
 
     }
+    
     @objc func imageTapped() {
             openGallery()
         }
@@ -132,16 +125,38 @@ class QRScannerController: UIViewController {
           present(imagePicker, animated: true, completion: nil)
       }
   }
+
   // Implement UIImagePickerControllerDelegate methods if not already implemented
   extension QRScannerController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+      
       func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
           if let selectedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
               // Do something with the selected image
               // For example, you can display it, process it, or save it
-              imageView.image = selectedImage
+//              imageView.image = selectedImage
+              
+              let detector:CIDetector = CIDetector(ofType: CIDetectorTypeQRCode, context:    nil, options: [CIDetectorAccuracy:CIDetectorAccuracyHigh] )!
+              let ciImage:CIImage = CIImage(image: selectedImage)!
+              var qrCodeLink = ""
+              
+              let features = detector.features(in: ciImage)
+              
+              for feature in features as! [CIQRCodeFeature] {
+                  qrCodeLink += feature.messageString!
+              }
+              
+              if qrCodeLink == "" {
+                  print("nothing")
+              }else{
+                  print("message: \(qrCodeLink)")
+              }
+          }
+          else{
+              print("something went wrong")
           }
           picker.dismiss(animated: true, completion: nil)
       }
+      
       func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
           picker.dismiss(animated: true, completion: nil)
       }
